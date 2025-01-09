@@ -4,6 +4,7 @@ extern crate test;
 mod tests {
     use super::test::Bencher;
     use crate::Num;
+    use rand::Rng;
 
     #[test]
     fn test_default() {
@@ -15,7 +16,7 @@ mod tests {
 
     #[test]
     fn test_overflow() {
-        let correct = [0, 1];
+        let correct = [0, 1]; 
         let mut end = Num::new(&[u8::MAX]);
         end.incrment();
         assert_eq!(correct, end.get_data())
@@ -104,8 +105,8 @@ mod tests {
 
     #[test]
     fn or() {
-        let num1: i64 = 53425433269;
-        let num2: i64 = 98675439086;
+        let num1: i64 = 100;
+        let num2: i64 = -100;
 
         let big_num1: Num = num1.into();
         let big_num2: Num = num2.into();
@@ -127,6 +128,83 @@ mod tests {
         assert_eq!(!num1, bug_num1)
     }
 
+    #[test]
+    fn fuzz_or() {
+        let mut rng = rand::thread_rng();
+        for i in 0..1_000_000 {
+            let num1: i128 = rng.r#gen();
+            let num2: i128 = rng.r#gen();
+    
+            let big_num1: Num = num1.into();
+            let big_num2: Num = num2.into();
+
+            let res = (big_num1 | big_num2).try_into().unwrap();
+            
+            assert_eq!(num1 | num2, res, "\niter: {i}: {num1} | {num2} != {res}")
+        }
+    }
+
+    #[test]
+    fn fuzz_and() {
+        let mut rng = rand::thread_rng();
+        for i in 0..1_000_000 {
+            let num1: i128 = rng.r#gen();
+            let num2: i128 = rng.r#gen();
+    
+            let big_num1: Num = num1.into();
+            let big_num2: Num = num2.into();
+
+            let res = (big_num1 & big_num2).try_into().unwrap();
+            
+            assert_eq!(num1 & num2, res, "\niter: {i}: {num1} | {num2} != {res}")
+        }
+    }
+
+    #[test]
+    fn fuzz_xor() {
+        let mut rng = rand::thread_rng();
+        for i in 0..1_000_000 {
+            let num1: i128 = rng.r#gen();
+            let num2: i128 = rng.r#gen();
+    
+            let big_num1: Num = num1.into();
+            let big_num2: Num = num2.into();
+
+            let res = (big_num1 ^ big_num2).try_into().unwrap();
+            
+            assert_eq!(num1 ^ num2, res, "\niter: {i}: {num1} | {num2} != {res}")
+        }
+    }
+
+    #[test]
+    fn fuzz_add() {
+        let mut rng = rand::thread_rng();
+        for i in 0..1_000_000 {
+            let num1: u64 = rng.r#gen();
+            let num2: u64 = rng.r#gen();
+    
+            let big_num1: Num = num1.into();
+            let big_num2: Num = num2.into();
+
+            let res: u128 = (big_num1 + big_num2).try_into().unwrap();
+            
+            assert_eq!((num1 as u128 + num2 as u128), res, "\niter: {i}\nc: {:?}\ni: {:?}", (num1 as u128 + num2 as u128).to_le_bytes(), res.to_le_bytes())
+        }
+    }
+
+    #[test]
+    fn addition() {
+        let num1: u64 = 16230822941552841209;
+        let num2: u64 = 7911040597281575175;
+
+        let big_num1: Num = num1.into();
+        let big_num2: Num = num2.into();
+
+        let res: u128 = (big_num1 + big_num2).try_into().unwrap();
+            
+        assert_eq!((num1 as u128 + num2 as u128), res, "\n{:?}\n{:?}\n{:?}", (num1 as u128).to_le_bytes(), (num2 as u128).to_le_bytes(), res.to_le_bytes())
+    }
+
 
     #[bench]
     fn perf(b: &mut Bencher) -> impl std::process::Termination {
@@ -141,3 +219,4 @@ mod tests {
         b.iter(|| start.incrment())
     }
 }
+ 

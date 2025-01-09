@@ -1,5 +1,5 @@
 #![feature(test)]
-#![feature(slice_as_array)]
+#![feature(bigint_helper_methods)]
 
 mod tooling;
 mod from;
@@ -69,3 +69,4 @@ impl Num {
         self.try_into()
     }
 }
+ 

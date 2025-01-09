@@ -4,7 +4,6 @@ macro_rules! impl_from_int {
         impl From<$ty> for Num {
             fn from(value: $ty) -> Self {
                 let postivity = value.is_positive();
-                let value = value.abs();
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
@@ -16,7 +15,6 @@ macro_rules! impl_from_int {
         impl From<&$ty> for Num {
             fn from(value: &$ty) -> Self {
                 let postivity = value.is_positive();
-                let value = value.abs();
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
@@ -60,7 +58,6 @@ macro_rules! impl_try_from_int {
         
             fn try_from(value: Num) -> Result<Self, Self::Error> {
                 let mut data = value.get_data().to_vec();
-                let polarity = if value.polarity { 1 } else { -1 };
                 let size = std::mem::size_of::<Self>();
                 if data.len() > size {
                     Err(Errors::ToBig)
@@ -71,7 +68,7 @@ macro_rules! impl_try_from_int {
                     }
                     assert_eq!(size, data.len());
                     let bytes = data.try_into().unwrap();
-                    Ok(Self::from_le_bytes(bytes) * polarity)
+                    Ok(Self::from_le_bytes(bytes))
                 }
             }
         }
@@ -81,7 +78,6 @@ macro_rules! impl_try_from_int {
         
             fn try_from(value: &Num) -> Result<Self, Self::Error> {
                 let mut data = value.get_data().to_vec();
-                let polarity = if value.polarity { 1 } else { -1 };
                 let size = std::mem::size_of::<Self>();
                 if data.len() > size {
                     Err(Errors::ToBig)
@@ -92,7 +88,7 @@ macro_rules! impl_try_from_int {
                     }
                     assert_eq!(size, data.len());
                     let bytes = data.try_into().unwrap();
-                    Ok(Self::from_le_bytes(bytes) * polarity)
+                    Ok(Self::from_le_bytes(bytes))
                 }
             }
         }
