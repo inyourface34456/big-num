@@ -11,7 +11,6 @@ mod tests;
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Debug)]
 pub struct Num {
-    polarity: bool,
     data: Vec<u8>,
 }
 
@@ -19,7 +18,6 @@ impl Default for Num {
     fn default() -> Self {
         Self {
             data: vec![0],
-            polarity: true,
         }
     }
 }
@@ -31,7 +29,6 @@ impl Num {
         }
         Self {
             data: data.to_owned(),
-            polarity: true,
         }
     }
 
@@ -58,11 +55,7 @@ impl Num {
         &self.data
     }
 
-    pub fn to_string(&self) -> String {
-        unsafe { std::mem::transmute::<&[u8], &str>(self.get_data()) }.to_string()
-    }
-
-    pub fn into_num<'a, T>(&'a self) -> Result<T, <T as TryFrom<&'a Num>>::Error> 
+    pub fn convert<'a, T>(&'a self) -> Result<T, <T as TryFrom<&'a Num>>::Error> 
     where
         T: std::convert::TryFrom<&'a Num>
      {

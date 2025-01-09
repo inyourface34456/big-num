@@ -3,22 +3,18 @@ macro_rules! impl_from_int {
     ($ty:ty) => {
         impl From<$ty> for Num {
             fn from(value: $ty) -> Self {
-                let postivity = value.is_positive();
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
-                    polarity: postivity,
                 }
             }
         }
 
         impl From<&$ty> for Num {
             fn from(value: &$ty) -> Self {
-                let postivity = value.is_positive();
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
-                    polarity: postivity,
                 }
             }
         }
@@ -33,7 +29,6 @@ macro_rules! impl_from_u {
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
-                    polarity: true,
                 }
             }
         }
@@ -43,7 +38,6 @@ macro_rules! impl_from_u {
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
-                    polarity: true,
                 }
             }
         }

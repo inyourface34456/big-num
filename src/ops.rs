@@ -6,7 +6,7 @@ impl Ord for Num {
         let own_dat = self.get_data().to_vec();
         let other_dat = other.get_data().to_vec();
 
-        for (dat, other_dat) in zip(own_dat, other_dat) {
+        for (dat, other_dat) in zip(own_dat, other_dat).rev() {
             if dat > other_dat {
                 return std::cmp::Ordering::Greater;
             } else if dat < other_dat {
@@ -23,7 +23,6 @@ impl ops::Neg for Num {
     fn neg(self) -> Self::Output {
         Self {
             data: self.data,
-            polarity: !self.polarity,
         }
     }
 }
@@ -38,7 +37,6 @@ impl ops::BitAnd for Num {
         }
         Self {
             data: new_dat,
-            polarity: self.polarity,
         }
     }
 }
@@ -61,7 +59,6 @@ impl ops::BitOr for Num {
         }
         Self {
             data: new_dat,
-            polarity: self.polarity/*  | rhs.polarity*/,
         }
     }
 }
@@ -84,7 +81,6 @@ impl ops::BitXor for Num {
         }
         Self {
             data: new_dat,
-            polarity: self.polarity,
         }
     }
 }
@@ -107,9 +103,53 @@ impl ops::Not for Num {
         }
 
         //dbg!(Self {data: new_dat.clone(), polarity: !self.polarity});
-        Self {data: new_dat, polarity: self.polarity}
+        Self {data: new_dat}
     }
 } 
+
+impl ops::Shl for Num {
+    type Output = Num;
+
+    fn shl(self, rhs: Self) -> Self::Output {
+        let mut new_dat = vec![];
+        for (dat, other_dat) in zip(self.get_data(), rhs.get_data()) {
+            new_dat.push(dat << other_dat)
+        }
+        Self {
+            data: new_dat,
+        }
+    }
+}
+
+impl ops::ShlAssign for Num {
+    fn shl_assign(&mut self, rhs: Self) {
+        for (idx, (dat, other_dat)) in zip(self.data.clone(), rhs.get_data()).enumerate() {
+            self.data[idx] = dat << other_dat;
+        }
+    }
+}
+
+impl ops::Shr for Num {
+    type Output = Num;
+
+    fn shr(self, rhs: Self) -> Self::Output {
+        let mut new_dat = vec![];
+        for (dat, other_dat) in zip(self.get_data(), rhs.get_data()) {
+            new_dat.push(dat >> other_dat)
+        }
+        Self {
+            data: new_dat,
+        }
+    }
+}
+
+impl ops::ShrAssign for Num {
+    fn shr_assign(&mut self, rhs: Self) {
+        for (idx, (dat, other_dat)) in zip(self.data.clone(), rhs.get_data()).enumerate() {
+            self.data[idx] = dat >> other_dat;
+        }
+    }
+}
 
 impl ops::Add for Num {
     type Output = Num;
@@ -128,7 +168,7 @@ impl ops::Add for Num {
 
         assert!(data.len() == rhs.len());
 
-        let mut carry_flag: u16 = 0;
+        //let mut carry_flag: u16 = 0;
         let mut set_on_last = false;
 
         for (idx, rhs) in rhs.into_iter().enumerate() {
@@ -155,18 +195,14 @@ impl ops::Add for Num {
             data.push(1);
         }
         //dbg!(&data);
-        Self {data, polarity: true}
+        Self {data}
     }
 }
 
 impl ops::Sub for Num {
     type Output = Num;
     
-    fn sub(self, rhs: Self) -> Self::Output {
-        if (rhs.polarity && !self.polarity)  || (!rhs.polarity && self.polarity) {
-            return self + rhs;
-        }
-
+    fn sub(self, _rhs: Self) -> Self::Output {
         Self::default()
     }
 } 
