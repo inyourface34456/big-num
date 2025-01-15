@@ -37,9 +37,9 @@ mod tests {
         end.incrment();
         assert_eq!(correct, end.get_data())
     }
-
-    #[test]
-    fn test_i64() {
+    
+   #[test]
+   fn test_i64() {
         let num: i64 = 9082340701;
         let value: Num = num.into();
         assert_eq!(Ok(num), value.try_into());
@@ -69,7 +69,7 @@ mod tests {
 
             let big_num1: Num = num1.into();
             let big_num2: Num = num2.into();
-            assert_eq!(num1 > num2, big_num1 > big_num2, "iter: {i}\n{num1} < {num2}");
+            assert_eq!(num1 > num2, big_num1 > big_num2, "iter: {i}:\n{:?}\n{:?}", num1.to_le_bytes(), num2.to_le_bytes());
         }
     }
 
@@ -82,7 +82,7 @@ mod tests {
 
             let big_num1: Num = num1.into();
             let big_num2: Num = num2.into();
-            assert_eq!(num1 < num2, big_num1 < big_num2, "iter: {i}\n{num1} < {num2}");
+            assert_eq!(num1 < num2, big_num1 < big_num2, "iter: {i}:\n{:?}\n{:?}", num1.to_le_bytes(), num2.to_le_bytes());
         }
     }
 
@@ -142,7 +142,6 @@ mod tests {
             assert_eq!(num1 & num2, res, "\niter: {i}: {num1} | {num2} != {res}")
         }
     }
-
     // #[test]
     // fn fuzz_shl() {
     //     let mut rng = rand::thread_rng();

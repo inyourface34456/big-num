@@ -6,6 +6,7 @@ macro_rules! impl_from_int {
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
+                    polarity: Some(value.is_positive())
                 }
             }
         }
@@ -15,6 +16,7 @@ macro_rules! impl_from_int {
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
+                    polarity: Some(value.is_positive())
                 }
             }
         }
@@ -29,6 +31,7 @@ macro_rules! impl_from_u {
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
+                    polarity: None
                 }
             }
         }
@@ -38,6 +41,7 @@ macro_rules! impl_from_u {
                 let array = value.to_le_bytes();
                 Self {
                     data: array.to_vec(),
+                    polarity: None
                 }
             }
         }

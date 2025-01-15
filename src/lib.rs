@@ -12,12 +12,14 @@ mod tests;
 #[derive(Clone, PartialEq, Eq, PartialOrd, Debug)]
 pub struct Num {
     data: Vec<u8>,
+    polarity: Option<bool>
 }
 
 impl Default for Num {
     fn default() -> Self {
         Self {
             data: vec![0],
+            polarity: None
         }
     }
 }
@@ -29,6 +31,7 @@ impl Num {
         }
         Self {
             data: data.to_owned(),
+            polarity: None
         }
     }
 
