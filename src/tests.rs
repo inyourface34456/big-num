@@ -69,7 +69,7 @@ mod tests {
 
             let big_num1: Num = num1.into();
             let big_num2: Num = num2.into();
-            assert_eq!(num1 > num2, big_num1 > big_num2, "iter: {i}:\n{:?}\n{:?}", num1.to_le_bytes(), num2.to_le_bytes());
+            assert_eq!(num1 > num2, big_num1 > big_num2, "iter: {i}:\n{:?}\n{:?}", num1, num2);
         }
     }
 
@@ -82,9 +82,20 @@ mod tests {
 
             let big_num1: Num = num1.into();
             let big_num2: Num = num2.into();
-            assert_eq!(num1 < num2, big_num1 < big_num2, "iter: {i}:\n{:?}\n{:?}", num1.to_le_bytes(), num2.to_le_bytes());
+            assert_eq!(num1 < num2, big_num1 < big_num2, "iter: {i}:\n{:?}\n{:?}", num1, num2);
         }
     }
+
+    // #[test]
+    // fn cmp_defualt_vec() {
+    //     let mut rng = rand::thread_rng();
+    //     for i in 0..1_000_000 {
+    //         let num1 = rng.gen_range(0..u128::MAX/2);
+    //         let num2 = rng.gen_range((u128::MAX/2)+1..u128::MAX);
+
+    //         assert_eq!(num1 < num2, num1.to_le_bytes() < num2.to_le_bytes(), "iter: {i}:\n{:?}\n{:?}", num1.to_le_bytes(), num2.to_le_bytes());
+    //     }
+    // }
 
     #[test]
     fn fuzz_cmp_test_eq() {

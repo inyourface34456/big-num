@@ -57,6 +57,7 @@ macro_rules! impl_try_from_int {
             fn try_from(value: Num) -> Result<Self, Self::Error> {
                 let mut data = value.get_data().to_vec();
                 let size = std::mem::size_of::<Self>();
+                
                 if data.len() > size {
                     Err(Errors::ToBig)
                 } else {
@@ -77,6 +78,7 @@ macro_rules! impl_try_from_int {
             fn try_from(value: &Num) -> Result<Self, Self::Error> {
                 let mut data = value.get_data().to_vec();
                 let size = std::mem::size_of::<Self>();
+                
                 if data.len() > size {
                     Err(Errors::ToBig)
                 } else {

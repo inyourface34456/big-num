@@ -1,41 +1,52 @@
 use crate::Num;
 use std::{iter::zip, ops};
+use std::cmp::Ordering;
 
-// impl Ord for Num {
-//     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-//         let mut data = self.get_data().to_vec();
-//         let mut rhs = other.get_data().to_vec();
+impl Ord for Num {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        // Treat None polarity as positive
+        let self_polarity = self.polarity.unwrap_or(true);
+        let other_polarity = other.polarity.unwrap_or(true);
 
-//         if data.len() > rhs.len() {
-//             let error = data.len() - rhs.len();
-//             rhs.append(&mut vec![0; error]);
-//         } else if data.len() < rhs.len() {
-//             let error = rhs.len() - data.len();
-//             data.append(&mut vec![0; error]);
-//         }
+        // Compare polarities first
+        match (self_polarity, other_polarity) {
+            (false, true) => return Ordering::Less, // Negative < Positive
+            (true, false) => return Ordering::Greater, // Positive > Negative
+            (false, false) => {
+                // Both negative: compare magnitudes, reverse order
+                return compare_magnitudes(&self.data, &other.data).reverse();
+            }
+            (true, true) => {
+                // Both positive: compare magnitudes
+                return compare_magnitudes(&self.data, &other.data);
+            }
+        }
+    }
+}
 
-//         for (idx, rhs) in rhs.iter().enumerate().rev() {
-//             if &data[idx] > rhs {
-//                 println!("found grater");
-//                 return std::cmp::Ordering::Greater;
-//             } else if &data[idx] < rhs {
-//                 println!("found less");
-//                 return std::cmp::Ordering::Less;
-//             }
-//         }
-//         std::cmp::Ordering::Equal 
-//     }
-// }
 
-// impl ops::Neg for Num {
-//     type Output = Self;
+impl ops::Neg for Num {
+    type Output = Self;
 
-//     fn neg(self) -> Self::Output {
-//         Self {
-//             data: self.data,
-//         }
-//     }
-// }
+    fn neg(self) -> Self::Output {
+        let mut data = self.get_data().to_vec();
+        
+        let polarity = match self.polarity {
+            Some(p) => {
+                data[0] ^= 0b10000000;
+                Some(!p)
+            },
+            None => None
+        };
+
+        
+
+        Self {
+            data: self.data,
+            polarity
+        }
+    }
+}
 
 impl ops::BitAnd for Num {
     type Output = Self;
@@ -177,10 +188,7 @@ impl ops::Not for Num {
 
     fn not(self) -> Self::Output {
         let mut new_dat = Vec::with_capacity(self.data.len());
-        let polarity = match self.polarity {
-            Some(p) => Some(!p),
-            None => None
-        };
+        let polarity = self.polarity.map(|p| !p);
         
         for dat in self.data.iter() {
             new_dat.push(!dat); 
@@ -245,12 +253,16 @@ impl ops::Add for Num {
         let mut data = self.data;
         let mut rhs = rhs.data;
 
-        if data.len() > rhs.len() {
-            let error = data.len() - rhs.len();
-            rhs.append(&mut vec![0; error]);
-        } else if data.len() < rhs.len() {
-            let error = rhs.len() - data.len();
-            data.append(&mut vec![0; error]);
+        match data.len().cmp(&rhs.len()) {
+            std::cmp::Ordering::Less => {
+                let error = rhs.len() - data.len();
+                data.append(&mut vec![0; error]);
+            },
+            std::cmp::Ordering::Greater => {
+                let error = data.len() - rhs.len();
+                rhs.append(&mut vec![0; error]);
+            }
+            _ => {}
         }
 
         let mut new_data = vec![0; data.len()];
@@ -283,3 +295,23 @@ impl ops::Sub for Num {
         Self::default()
     }
 } 
+
+fn compare_magnitudes(data1: &[u8], data2: &[u8]) -> Ordering {
+    let len1 = data1.len();
+    let len2 = data2.len();
+
+    // Longer data has larger magnitude
+    if len1 != len2 {
+        return len1.cmp(&len2);
+    }
+
+    // Compare bytes in reverse order (little-endian representation)
+    for (&b1, &b2) in data1.iter().rev().zip(data2.iter().rev()) {
+        match b1.cmp(&b2) {
+            Ordering::Equal => continue,
+            non_eq => return non_eq,
+        }
+    }
+
+    Ordering::Equal
+}

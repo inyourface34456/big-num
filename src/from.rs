@@ -11,14 +11,15 @@ pub enum Errors {
 impl Error for Errors {
     fn description(&self) -> &str {
         match self {
-            Errors::ToBig => "The esleted value was to big for target",
+            Errors::ToBig => "The seleted value was to big for target",
         }
     }
 }
 
+
 impl Display for Errors {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self.to_string())?;
+        write!(f, "The seleted value was to big for target")?;
 
         Ok(())
     }

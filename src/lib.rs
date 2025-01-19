@@ -26,7 +26,7 @@ impl Default for Num {
 
 impl Num {
     pub fn new(data: &[u8]) -> Self {
-        if data.len() == 0 {
+        if data.is_empty() {
             panic!("must have at least one element")
         }
         Self {
