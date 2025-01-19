@@ -4,23 +4,24 @@ use std::cmp::Ordering;
 
 impl Ord for Num {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        // Treat None polarity as positive
-        let self_polarity = self.polarity.unwrap_or(true);
-        let other_polarity = other.polarity.unwrap_or(true);
+        // // Treat None polarity as positive
+        // let self_polarity = self.polarity.unwrap_or(true);
+        // let other_polarity = other.polarity.unwrap_or(true);
 
-        // Compare polarities first
-        match (self_polarity, other_polarity) {
-            (false, true) => return Ordering::Less, // Negative < Positive
-            (true, false) => return Ordering::Greater, // Positive > Negative
-            (false, false) => {
-                // Both negative: compare magnitudes, reverse order
-                return compare_magnitudes(&self.data, &other.data).reverse();
-            }
-            (true, true) => {
-                // Both positive: compare magnitudes
-                return compare_magnitudes(&self.data, &other.data);
-            }
-        }
+        // // Compare polarities first
+        // match (self_polarity, other_polarity) {
+        //     (false, true) => return Ordering::Less, // Negative < Positive
+        //     (true, false) => return Ordering::Greater, // Positive > Negative
+        //     (false, false) => {
+        //         // Both negative: compare magnitudes, reverse order
+        //         return compare_magnitudes(&self.data, &other.data).reverse();
+        //     }
+        //     (true, true) => {
+        //         // Both positive: compare magnitudes
+        //         return compare_magnitudes(&self.data, &other.data);
+        //     }
+        // }
+        self.data.cmp(&other.data)
     }
 }
 
@@ -296,22 +297,44 @@ impl ops::Sub for Num {
     }
 } 
 
-fn compare_magnitudes(data1: &[u8], data2: &[u8]) -> Ordering {
-    let len1 = data1.len();
-    let len2 = data2.len();
+impl ops::Mul for Num {
+    type Output = Self;
 
-    // Longer data has larger magnitude
-    if len1 != len2 {
-        return len1.cmp(&len2);
-    }
+    fn mul(self, rhs: Self) -> Self::Output {
+        let mut data = self.data;
+        let mut rhs = rhs.data;
 
-    // Compare bytes in reverse order (little-endian representation)
-    for (&b1, &b2) in data1.iter().rev().zip(data2.iter().rev()) {
-        match b1.cmp(&b2) {
-            Ordering::Equal => continue,
-            non_eq => return non_eq,
+        match data.len().cmp(&rhs.len()) {
+            std::cmp::Ordering::Less => {
+                let error = rhs.len() - data.len();
+                data.append(&mut vec![0; error]);
+            },
+            std::cmp::Ordering::Greater => {
+                let error = data.len() - rhs.len();
+                rhs.append(&mut vec![0; error]);
+            }
+            _ => {}
+        }
+
+        let mut new_data = vec![0; data.len()];
+
+        assert!(data.len() == rhs.len());
+
+        let mut carry = 0;
+
+        for (idx, rhs) in rhs.into_iter().enumerate() {
+            (new_data[idx], carry) = data[idx].carrying_mul(rhs, carry)
+        }
+
+        if carry != 0 {
+            new_data.push(carry);
+        }
+
+        let polarity = Some((new_data[0] >> 7) == 0);
+
+        Self {
+            data: new_data, 
+            polarity
         }
     }
-
-    Ordering::Equal
 }

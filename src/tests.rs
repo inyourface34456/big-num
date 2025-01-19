@@ -86,17 +86,6 @@ mod tests {
         }
     }
 
-    // #[test]
-    // fn cmp_defualt_vec() {
-    //     let mut rng = rand::thread_rng();
-    //     for i in 0..1_000_000 {
-    //         let num1 = rng.gen_range(0..u128::MAX/2);
-    //         let num2 = rng.gen_range((u128::MAX/2)+1..u128::MAX);
-
-    //         assert_eq!(num1 < num2, num1.to_le_bytes() < num2.to_le_bytes(), "iter: {i}:\n{:?}\n{:?}", num1.to_le_bytes(), num2.to_le_bytes());
-    //     }
-    // }
-
     #[test]
     fn fuzz_cmp_test_eq() {
        let mut rng = rand::thread_rng();
@@ -153,37 +142,6 @@ mod tests {
             assert_eq!(num1 & num2, res, "\niter: {i}: {num1} | {num2} != {res}")
         }
     }
-    // #[test]
-    // fn fuzz_shl() {
-    //     let mut rng = rand::thread_rng();
-    //     for i in 0..1_000_000 {
-    //         let num1: i128 = rng.r#gen();
-    //         let num2: i128 = rng.r#gen();
-    
-    //         let big_num1: Num = num1.into();
-    //         let big_num2: Num = num2.into();
-
-    //         let res = (big_num1 << big_num2).try_into().unwrap();
-            
-    //         assert_eq!(num1 << num2, res, "\niter: {i}: {num1} | {num2} != {res}")
-    //     }
-    // }
-
-    // #[test]
-    // fn fuzz_shr() {
-    //     let mut rng = rand::thread_rng();
-    //     for i in 0..1_000_000 {
-    //         let num1: i64 = rng.r#gen();
-    //         let num2: i64 = rng.r#gen();
-    
-    //         let big_num1: Num = num1.into();
-    //         let big_num2: Num = num2.into();
-
-    //         let res: i128 = (big_num1 >> big_num2).try_into().unwrap();
-            
-    //         assert_eq!((num1 as i128) << (num2 as i128), res, "\niter: {i}: {num1} | {num2} != {res}")
-    //     }
-    // }
 
     #[test]
     fn fuzz_xor() {
@@ -214,6 +172,22 @@ mod tests {
             let res: u128 = (big_num1 + big_num2).try_into().unwrap();
             
             assert_eq!((num1 as u128 + num2 as u128), res, "\niter: {i}\nc: {:?}\ni: {:?}", (num1 as u128 + num2 as u128).to_le_bytes(), res.to_le_bytes())
+        }
+    }
+
+    #[test]
+    fn fuzz_mul() {
+        let mut rng = rand::thread_rng();
+        for i in 0..1_000_000 {
+            let num1: u128 = rng.gen_range(0..(2^64)-1);
+            let num2: u128 = rng.gen_range(0..(2^64)-1);
+    
+            let big_num1: Num = num1.into();
+            let big_num2: Num = num2.into();
+
+            let res: u128 = (big_num1 * big_num2).try_into().unwrap();
+            
+            assert_eq!(num1 * num2, res, "\niter: {i}\nc: {:?}\ni: {:?}", (num1 as u128 * num2 as u128).to_le_bytes(), res.to_le_bytes())
         }
     }
 
